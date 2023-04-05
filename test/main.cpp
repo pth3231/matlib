@@ -10,7 +10,7 @@ int main()
     std::cout << n.get() << std::endl;
     n.set("-232333");
     std::cout << n.get() << std::endl;
-    n.set(-1000.);
+    n.set(-100.12346666);
     std::cout << n.get() << std::endl;
     return 0;
 }

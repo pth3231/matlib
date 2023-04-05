@@ -70,6 +70,11 @@ public:
         3. void set(int64_t)
             - Change std::string _num_A by spliting, changing and concatnate back to std::string _num_A
             - Time complexity: O(logn) (logarithm base 10)
+        4. void set(double)
+            - Change std::string _num_A by using standard function of STL C++
+            - Required >C++11
+            - Just have 6 floating point decisions
+            - Time complexity: depend on std::to_string() time complexity.
     */
     std::string get()
     {
@@ -85,7 +90,7 @@ public:
         this->_num_A = "";
         
         // Specify the sign of that number and choosing the _factor
-        int16_t _factor = ((_i64_num % 10) < 0) ? -1 : 1;
+        int16_t _factor = (_i64_num < 0) ? -1 : 1;
 
         // Iterate until _i64_num == 0
         while (_i64_num != 0)
@@ -101,9 +106,19 @@ public:
     }
     void        set(double _db_num)
     {
-        this->_num_A = std::to_string(_db_num);
+        // Specify the sign of _db_num and choosing the suitable _factor
+        int16_t _factor = (_db_num < 0) ? -1 : 1;
+
+        // Built-in std::to_string() to convert double to string
+        this->_num_A = std::to_string(_db_num * _factor);
+        if (_factor == -1)
+            this->_num_A = '-' + this->_num_A;
     }
 
+    /*BigNum add(BigNum *_num_A, BigNum *_num_B)
+    {
+
+    }*/
 
     ~BigNum() {}
 };
