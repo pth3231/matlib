@@ -4,13 +4,10 @@
 
 int main()
 {
-    BigNum n(100000000000001);
-    std::cout << n.get() << std::endl;
-    n.set((int64_t) 1000);
-    std::cout << n.get() << std::endl;
-    n.set("-232333");
-    std::cout << n.get() << std::endl;
-    n.set(-100.12346666);
-    std::cout << n.get() << std::endl;
+    BigNum *n1 = new BigNum(1002);
+    BigNum *n2 = new BigNum(3004);
+    std::cout << n1->get() << std::endl;
+    std::cout << n2->get() << std::endl;
+    std::cout << (n1 < n2) << std::endl;
     return 0;
 }

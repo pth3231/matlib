@@ -15,6 +15,12 @@ class BigNum {
 private:
     std::string _num_A;
 
+    void    _SET_FLOATING_(const uint32_t _PRECISION)
+    {
+        uint32_t iter = this->_num_A.length() - 1;
+        while (_PRECISION) {}
+    }
+
 public:
     /*
         CONSTRUCTOR
@@ -29,34 +35,23 @@ public:
             - Copy every digits of the numbers and assigns it to std::string _num_A
             - Time complexity: O(logn) (logarithm base 10) 
     */
-    BigNum() {}
+    BigNum()
+    {
+        this->_num_A = "0";
+    }
     BigNum(std::string _init_num)
     {
         this->_num_A = _init_num;
     }
-    BigNum(int64_t _i64_num) 
-    {
-        // Emptying string
-        this->_num_A = "";
-        
-        // Specify the sign of that number and choosing the _factor
-        int16_t _factor = ((_i64_num % 10) < 0) ? -1 : 1;
-
-        // Iterate until _i64_num == 0
-        while (_i64_num != 0)
-        {
-            int16_t _digit = _i64_num % 10 * _factor;           // Split the first digit of _i64_num
-            this->_num_A = char(_digit + 48) + this->_num_A;    // Convert and concatnate to the std::string _num_A
-            _i64_num /= 10;                                     // Remove current digit of _i64_num
-        }
-
-        // Adding the sign '-' based on _factor's value
-        if (_factor == -1)
-            this->_num_A = '-' + this->_num_A;
-    }
     BigNum(double _db_num)
     {
-        this->_num_A = std::to_string(_db_num);
+        // Specify the sign of _db_num and choosing the suitable _factor
+        int16_t _factor = (_db_num < 0) ? -1 : 1;
+
+        // Built-in std::to_string() to convert double to string
+        this->_num_A = std::to_string(_db_num * _factor);
+        if (_factor == -1)
+            this->_num_A = '-' + this->_num_A;
     }
     /*
         BASIC GET/SET
@@ -75,6 +70,7 @@ public:
             - Required >C++11
             - Just have 6 floating point decisions
             - Time complexity: depend on std::to_string() time complexity.
+        5. BigNum& operator=()
     */
     std::string get()
     {
@@ -84,27 +80,7 @@ public:
     {
         this->_num_A = _set_num;
     }
-    void        set(int64_t _i64_num)
-    {
-        // Emptying string
-        this->_num_A = "";
-        
-        // Specify the sign of that number and choosing the _factor
-        int16_t _factor = (_i64_num < 0) ? -1 : 1;
-
-        // Iterate until _i64_num == 0
-        while (_i64_num != 0)
-        {
-            int16_t _digit = _i64_num % 10 * _factor;           // Split the first digit of _i64_num
-            this->_num_A = char(_digit + 48) + this->_num_A;    // Convert and concatnate to the std::string _num_A
-            _i64_num /= 10;                                     // Remove current digit of _i64_num
-        }
-
-        // Adding the sign '-' based on _factor's value
-        if (_factor == -1)
-            this->_num_A = '-' + this->_num_A;
-    }
-    void        set(double _db_num)
+    void        set(double _db_num, bool _IGNORE_FLOATING_POINTS = false)
     {
         // Specify the sign of _db_num and choosing the suitable _factor
         int16_t _factor = (_db_num < 0) ? -1 : 1;
@@ -113,11 +89,68 @@ public:
         this->_num_A = std::to_string(_db_num * _factor);
         if (_factor == -1)
             this->_num_A = '-' + this->_num_A;
+
+        // _IGNORE_FLOATING_POINTS flag = true
+        if (_IGNORE_FLOATING_POINTS)
+            for (int i = 0; i < 7; i++)
+                this->_num_A.pop_back();    // Pop_back() all the six-digit and a point (xxx.123456)
+    }
+    void        set(BigNum &_BN_num)
+    {
+        this->_num_A = _BN_num.get();
+    }
+    
+    friend bool operator> (const BigNum &_BN_A, const BigNum &_BN_B)
+    {
+        uint64_t len_A = _BN_A._num_A.length() - 1;
+        uint64_t len_B = _BN_B._num_A.length() - 1;
+        if (len_A == len_B)
+        {
+            for (uint64_t iter = 0; iter < len_A; ++iter)
+                if ( (int16_t)(_BN_A._num_A[iter]) - 48 < (int16_t)(_BN_B._num_A[iter]) - 48 )
+                    return false;
+            return true;
+        }
+        else return len_A > len_B;
+    }
+    friend bool operator< (const BigNum &_BN_A, const BigNum &_BN_B)
+    {
+        uint64_t len_A = _BN_A._num_A.length() - 1;
+        uint64_t len_B = _BN_B._num_A.length() - 1;
+        if (len_A == len_B)
+        {
+            for (uint64_t iter = 0; iter < len_A; ++iter)
+                if ( (int16_t)(_BN_A._num_A[iter]) - 48 > (int16_t)(_BN_B._num_A[iter]) - 48 )
+                    return false;
+            return true;
+        }
+        else return len_A < len_B;
+    }
+    BigNum&     operator= (const std::string &_set_num)
+    {
+        this->set(_set_num);
+        return *this;
+    }
+    BigNum&     operator= (const double _db_num)
+    {
+        this->set(_db_num, false);
+        return *this;
+    }
+    BigNum&     operator= (const BigNum &_BN_result)
+    {
+        this->_num_A = _BN_result._num_A;
+        return *this;
+    }
+    
+    BigNum  BN_max(const BigNum _num_A, const BigNum _num_B) const
+    {
+        return (_num_A > _num_B) ? _num_A : _num_B;
     }
 
     /*BigNum add(BigNum *_num_A, BigNum *_num_B)
     {
-
+        BigNum *_BN_result = new BigNum();
+        //uint32_t iter = max()
     }*/
 
     ~BigNum() {}
